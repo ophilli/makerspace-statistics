@@ -18,7 +18,11 @@ try:
 			`role`, `ip` FROM `makerspace`.`signin`"""
 		cursor.execute(sql)
 		bulkData = cursor.fetchall()
-		
+
 finally:
 	connection.close()
+
+for row in bulkData:
+	for col in row:
+		print(col)	
 
