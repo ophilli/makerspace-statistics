@@ -2,17 +2,6 @@ import configparser
 import pymysql.cursors
 import collections
 
-def transpose(twoDList):
-	# Assume that 2dList is a square 2 dimensional list
-
-	trans = []
-
-	for c in range(len(twoDList[0])):
-		trans.append([])
-		for row in twoDList:
-			trans[c].append(row[c]) if row[c] != None else trans[c].append('None')
-	return trans
-
 def uniqueList(oneDList):
 	return sorted(list(set(oneDList)))
 
@@ -32,7 +21,8 @@ config.read('secrets.cfg')
 connection = pymysql.connect(host=config.get('_sql', 'hostname'),
 				user=config.get('_sql', 'username'),
 				password=config.get('_sql', 'password'),
-				db=config.get('_sql', 'database')
+				db=config.get('_sql', 'database'),
+				cursorclass=pymysql.cursors.DictCursor
 				)
 
 try:
@@ -45,11 +35,11 @@ try:
 finally:
 	connection.close()
 
-zipped = transpose(res)
+majors = []
 
-finalDict = count2Dict(uniqueList(zipped[6]), zipped[6])
+for row in res:
+	majors.append(row['major_code']) if row['major_code'] != None else majors.append('None')
 
-sDict = collections.OrderedDict(sorted(finalDict.items(), key=lambda t: t[0]))
+print(uniqueList(majors))
 
-print(sDict)
-
+print(count2Dict(uniqueList(majors), majors))
