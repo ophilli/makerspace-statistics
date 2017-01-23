@@ -1,45 +1,45 @@
 import configparser
 import pymysql.cursors
 import collections
+import plotly.plotly as py
+import plotly.graph_objs as go
 
-def uniqueList(oneDList):
-	return sorted(list(set(oneDList)))
+def downloadData():
+	config = configparser.RawConfigParser()
+	config.read('secrets.cfg')
+	
+	connection = pymysql.connect(host=config.get('_sql', 'hostname'),
+					user=config.get('_sql', 'username'),
+					password=config.get('_sql', 'password'),
+					db=config.get('_sql', 'database'),
+					cursorclass=pymysql.cursors.DictCursor
+					)
 
-def count2Dict(set, list):
-	temp = {}
-	for val in set:
-		count = 0
-		for row in list:
-			if row == val:
-				count = count + 1
-		temp[val] = count
-	return temp
+	try:
+		with connection.cursor() as cursor:
+			# Read ALL the records!1
+			sql = """SELECT * FROM `makerspace`.`signin`"""
+			cursor.execute(sql)
+			res = cursor.fetchall()
 
-config = configparser.RawConfigParser()
-config.read('secrets.cfg')
+	finally:
+		connection.close()
 
-connection = pymysql.connect(host=config.get('_sql', 'hostname'),
-				user=config.get('_sql', 'username'),
-				password=config.get('_sql', 'password'),
-				db=config.get('_sql', 'database'),
-				cursorclass=pymysql.cursors.DictCursor
-				)
+	return res
 
-try:
-	with connection.cursor() as cursor:
-		# Read ALL the records!1
-		sql = """SELECT * FROM `makerspace`.`signin`"""
-		cursor.execute(sql)
-		res = cursor.fetchall()
+def main():
+	res = downloadData()
 
-finally:
-	connection.close()
+	d = []
 
-majors = []
+	for row in res:
+		d.append(row['class_code']) if row['class_code'] != None else d.append('Unknown')
 
-for row in res:
-	majors.append(row['major_code']) if row['major_code'] != None else majors.append('None')
+	cnt = collections.Counter()
 
-print(uniqueList(majors))
+	for word in d:
+		cnt[word] += 1
 
-print(count2Dict(uniqueList(majors), majors))
+
+if __name__ == '__main__':
+	main()
