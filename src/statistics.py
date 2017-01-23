@@ -40,6 +40,11 @@ def main():
 	for word in d:
 		cnt[word] += 1
 
+	trace = go.Pie(labels=list(cnt.keys()), values=list(cnt.values()))
+
+	print(sum(cnt.values()))
+
+	py.plot([trace])
 
 if __name__ == '__main__':
 	main()
