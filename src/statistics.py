@@ -48,32 +48,44 @@ def main():
 	l.sort()
 	
 	wDay = []
-	time = []
+	timeList = []
+
+	midnight = time()
 
 	for row in d:
-		wDay.append(row.isoweekday())
-		time.append(row.time())
+		wDay.append(row.isoweekday())#row.isoweekday()))
+		timeList.append(datetime(2017,1,24,row.time().hour, row.time().minute, row.time().second, row.time().microsecond))
 
-	time, wDay = (list(t) for t in zip(*sorted(zip(time, wDay))))
+	timeList, wDay = (list(t) for t in zip(*sorted(zip(timeList, wDay))))
 
-	print(len(time), len(wDay))
-	data = [
-		go.Histogram2d(x=time, y=wDay, #histnorm='probability',
-			autobinx=False,
-			xbins=dict(start=0, end=1660, size=25),
+	trace0 = go.Histogram2d(x=timeList, y=wDay, #histnorm='probability',
+			autobinx=True,
+			nbinsx=(72),
+			#xbins=dict(start=datetime(2017,1,24), end=datetime(2017,1,25), size=24),
 			autobiny=False,
 			ybins=dict(start=0, end=7, size=1),
-			colorscale=[[0, 'rgb(12,51,131)'], [0.25, 'rgb(10,136,186)'], 
-				[0.5, 'rgb(242,211,56)'], [0.75, 'rgb(242,143,56)'],
-				[1, 'rgb(217,30,30)']]
+			colorscale=[[0, 'rgb(82,45,128)'],
+				[1, 'rgb(234,106,32)']]
 			)
-		]
-	
+
+	trace1 = go.Scatter(x=timeList, y=wDay,
+			mode='markers',
+			showlegend=False,
+			marker=dict(
+				symbol='x',
+				opacity=0.7,
+				color='white',
+				size=8,
+				line=dict(width=1)
+			)
+		)
+
+	data = [trace0]#[trace0, trace1]	
 	layout = go.Layout(
 		title='Makerspace Utilization Heatmap',
 		xaxis = dict(
-				title='Military Time',
-				#type="date"
+				title='Military Time'
+				
 			),
 		yaxis = dict(
 				title='Days of the Week',
@@ -86,7 +98,7 @@ def main():
 	#data = [go.Scatter(x=timestamp, y=weekday, mode='markers')]
 	fig = go.Figure(data=data, layout=layout)	
 
-	offline.plot(fig, image='png')
+	py.plot(fig)
 
 if __name__ == '__main__':
 	main()
