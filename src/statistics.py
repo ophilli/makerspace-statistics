@@ -3,6 +3,7 @@ import pymysql.cursors
 import collections
 import plotly.plotly as py
 import plotly.graph_objs as go
+from datetime import datetime
 
 def downloadData():
 	config = configparser.RawConfigParser()
@@ -31,20 +32,14 @@ def main():
 	res = downloadData()
 
 	d = []
+	di = []
 
 	for row in res:
-		d.append(row['class_code']) if row['class_code'] != None else d.append('Unknown')
-
-	cnt = collections.Counter()
-
-	for word in d:
-		cnt[word] += 1
-
-	trace = go.Pie(labels=list(cnt.keys()), values=list(cnt.values()))
-
-	print(sum(cnt.values()))
-
-	py.plot([trace])
+		d.append(row['timestamp']) if row['timestamp'] != None else d.append('Unknown')
+		di.append(row['id']) if row['id'] != None else di.append('Unknown')
+		
+	data = [go.Scatter(x=d, y=di)]
+	py.plot(data)
 
 if __name__ == '__main__':
 	main()
